@@ -27,13 +27,14 @@ def get_data(query: str, file=yaml_file, section='postgres_cloud') -> list:
             rows = cur.fetchall()
             colnames = [desc[0] for desc in cur.description]
             df = pd.DataFrame(rows, columns=colnames)
-        except:
+        except (Exception, ps.DatabaseError) as err:
+            print(f"PostgreSQL can't execute query - {err}")
             df=pd.DataFrame()
         cur.close()
         conn.close()
         return df
     except (Exception, ps.DatabaseError) as err:
-        logging.error(f"PostgreSQL can't execute query - {err}")
+        print(f"PostgreSQL can't execute query - {err}")
     finally:
         if conn is not None:
             conn.close()
